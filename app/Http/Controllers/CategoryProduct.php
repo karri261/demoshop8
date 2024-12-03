@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -53,5 +54,33 @@ class CategoryProduct extends Controller
         Session::put('message','Kích hoạt danh mục sản phẩm thành công.');
         return Redirect::to('all-category-product');
     }
+    public function edit_category_product($category_product_id)
+    {
+        $this->AuthLogin();
+        $edit_category_product = Category::where('category_id', $category_product_id)->get();
+        $manager_category_product  = view('admin.edit_category_product')->with('edit_category_product', $edit_category_product);
+        return view('admin_layout')->with('admin.edit_category_product', $manager_category_product);
+    }
 
+    public function update_category_product(Request $request, $category_product_id)
+    {
+        $this->AuthLogin();
+        $data = $request->all();
+        $category = Category::find($category_product_id);
+        $category->category_name = $data['category_product_name'];
+        $category->slug_category_product = $data['category_product_slug'];
+        $category->category_desc = $data['category_product_desc'];
+        $category->category_status = $data['category_product_status'];
+        $category->save();
+        Session::put('message', 'Cập nhật danh mục sản phẩm thành công');
+        return Redirect::to('all-category-product');
+    }
+
+    public function delete_category_product($category_product_id)
+    {
+        $this->AuthLogin();
+        DB::table('tbl_category_product')->where('category_id', $category_product_id)->delete();
+        Session::put('message', 'Xóa danh mục sản phẩm thành công');
+        return Redirect::to('all-category-product');
+    }
 }
